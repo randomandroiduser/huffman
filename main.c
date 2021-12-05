@@ -89,7 +89,8 @@ int main(int argc, char* argv[]) {
             exit(1);
         }
 
-        elemCaraTable* listeElemCaraTable = traiterTableCodage(fluxFichierTable);
+        int nbBitsVides = 0;
+        elemCaraTable* listeElemCaraTable = traiterTableCodage(fluxFichierTable, &nbBitsVides);
         listeElemCaraTable = triElemCaraTab(listeElemCaraTable);
 
         FILE* fluxFichierEntree = fopen(argv[2], "rb"); // rb pour read un fichier binaire
@@ -110,8 +111,13 @@ int main(int argc, char* argv[]) {
         int caractere = fgetc(fluxFichierEntree);
         int accumulateurBits = 0;
         int compteurAccBits = 0;
+        int estDernierCara = 0;
         while (caractere != EOF) {
+            if (fgetc(fluxFichierEntree) == EOF) estDernierCara = 1;
+            else fseek(fluxFichierEntree, -1L, SEEK_CUR);
             for (int i = 0; i < 8; i++) {
+                if (estDernierCara && i == 8 - nbBitsVides) break; // on ne veut pas écrire les bits vides
+                printf("%d\n", i);
                 accumulateurBits |= (caractere >> (8 - (i + 1))) & 1;
                 compteurAccBits++;
                 testAccumulateurEtEcriture(&accumulateurBits, &compteurAccBits, listeElemCaraTable, fluxFichierSortie);

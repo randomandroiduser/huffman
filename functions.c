@@ -274,10 +274,11 @@ void ecrireTexteCompresseEtTable(FILE* fluxFichierEntree, FILE* fluxFichierSorti
         caractere = fgetc(fluxFichierEntree); //passage au caractère suivant
     }
 
-    if (compteurAccBits != 0) {
-        accumulateurBits <<= 8 - compteurAccBits;
-        accumulateurBits |= (1 << (8 - compteurAccBits - 1));
-        fwrite(&accumulateurBits, 1, 1, fluxFichierSortie); // si le dernier octet à écrire n'a pas été complètement rempli, on l'écrit tout de même
+    if (compteurAccBits != 0) { // si le dernier octet à écrire n'a pas été complètement rempli, on l'écrit tout de même
+        int nbBitsVides = 8 - compteurAccBits;
+        accumulateurBits <<= nbBitsVides;
+        fprintf(fluxFichierTable, "%c", nbBitsVides + 48);
+        fwrite(&accumulateurBits, 1, 1, fluxFichierSortie); 
     }
 }
 
@@ -296,7 +297,8 @@ elemCaraTable* creerElemCaraTable(char c, int tailleVar, int nbBitsTailleVar) {
     return nv;
 }
 
-elemCaraTable* traiterTableCodage(FILE* fluxFichierTable) {
+elemCaraTable* traiterTableCodage(FILE* fluxFichierTable, int* nbBitsVides) {
+    (*nbBitsVides) = 0;
     char caraActuel = fgetc(fluxFichierTable);
     char caractere = caraActuel;
     int tailleVar = 0;
@@ -318,6 +320,13 @@ elemCaraTable* traiterTableCodage(FILE* fluxFichierTable) {
 
     int ignorerVerification = 0; // on utilise une variable qui ignore la vérification du premier caractère suivant une virgule, de cette manière si ce dit caractère est une virgule il sera tout de même pris en compte
     while (caraActuel != EOF) {
+        char caraSuiv = fgetc(fluxFichierTable);
+        if (caraSuiv == EOF) { // le cas où la fin du fichier table contient un entier correspondant au nombre de bits vides à la fin de la décompression
+            (*nbBitsVides) = caraActuel - 48;
+            break;
+        }
+        fseek(fluxFichierTable, -1L, SEEK_CUR); // on revient au caractère précédent si le fgetc n'a pas donné un EOF
+        
         caractere = caraActuel;
         tailleVar = 0;
         nbBitsTailleVar = 0;

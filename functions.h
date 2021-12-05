@@ -50,7 +50,7 @@ void assignerTailleVariable(node*);
 void ecrireTexteCompresseEtTable(FILE*, FILE*, FILE*, elemCara*);
 
 elemCaraTable* creerElemCaraTable(char, int, int);
-elemCaraTable* traiterTableCodage(FILE*);
+elemCaraTable* traiterTableCodage(FILE*, int*);
 elemCaraTable* triElemCaraTab(elemCaraTable*);
 void afficherListeTab(elemCaraTable*);
 void testAccumulateurEtEcriture(int*, int*, elemCaraTable*, FILE*);
