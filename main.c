@@ -117,7 +117,6 @@ int main(int argc, char* argv[]) {
             else fseek(fluxFichierEntree, -1L, SEEK_CUR);
             for (int i = 0; i < 8; i++) {
                 if (estDernierCara && i == 8 - nbBitsVides) break; // on ne veut pas écrire les bits vides
-                printf("%d\n", i);
                 accumulateurBits |= (caractere >> (8 - (i + 1))) & 1;
                 compteurAccBits++;
                 testAccumulateurEtEcriture(&accumulateurBits, &compteurAccBits, listeElemCaraTable, fluxFichierSortie);

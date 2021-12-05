@@ -40,14 +40,6 @@ void ajoutIter(elemCara* e, char c) {
     else e->suiv = creerElemCara(c);
 }
 
-//DEBUG
-void afficherListe(elemCara* e) {
-    while(e) {
-        printf("%c - %d iterations\n", e->cara, e->iter);
-        e = e->suiv;
-    }
-}
-
 // Cette fonction trie une liste par nombre d'itérations et renvoie le premier élément de la liste
 elemCara* triIter(elemCara* e) {
     if (e == NULL || e->suiv == NULL) return e; // inutile de trier une liste vide ou à un seul élément
@@ -382,14 +374,6 @@ elemCaraTable* triElemCaraTab(elemCaraTable* e) {
     }
 
     return e;
-}
-
-//DEBUG
-void afficherListeTab(elemCaraTable* e) {
-    while(e) {
-        printf("%c - %d\n", e->cara, e->tailleVar);
-        e = e->suiv;
-    }
 }
 
 void testAccumulateurEtEcriture(int* accBits, int* comptAccBits, elemCaraTable* liste, FILE* fluxFichierSortie) {
