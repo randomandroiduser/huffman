@@ -4,13 +4,16 @@ EXEC = huffman
 
 all: $(EXEC)
 
-huffman: functions.o main.o 
-	$(CC) -o huffman functions.o main.o
+huffman: compression.o decompression.o main.o 
+	$(CC) -o huffman compression.o decompression.o main.o 
 
-functions.o: functions.c functions.h
-	$(CC) -o functions.o -c functions.c $(CFLAGS)
+compression.o: compression.c compression.h
+	$(CC) -o compression.o -c compression.c $(CFLAGS)
 
-main.o: main.c functions.h
+decompression.o: decompression.c decompression.h
+	$(CC) -o decompression.o -c decompression.c $(CFLAGS)
+
+main.o: main.c compression.h decompression.h
 	$(CC) -o main.o -c main.c $(CFLAGS)
 
 clean:

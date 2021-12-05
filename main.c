@@ -1,4 +1,8 @@
-#include "functions.h"
+#include <string.h>
+#include <stdlib.h>
+#include <time.h>
+#include "compression.h"
+#include "decompression.h"
 
 int main(int argc, char* argv[]) {
     if (!argv[1]) {
