@@ -6,7 +6,7 @@
 
 int main(int argc, char* argv[]) {
     if (!argv[1]) {
-        fprintf(stderr, "Veuillez indiquer une option pour utiliser ce programme. Pour plus d'aide, tapez :\n./huffman -h\n");
+        fprintf(stderr, "Erreur : Option manquante. Pour plus d'aide, tapez :\n./huffman -h\n");
         exit(1);
     }
 
@@ -41,13 +41,13 @@ int main(int argc, char* argv[]) {
         caractere = fgetc(fluxFichierEntree); //et passage au suivant
 
         while (caractere != EOF) {
-            ajoutIter(listeCaracteres, caractere);
+            ajoutApparition(listeCaracteres, caractere);
             caractere = fgetc(fluxFichierEntree); //passage au caractère suivant chaque fois qu'on a fini de traiter l'actuel
         }
 
-        listeCaracteres = triIter(listeCaracteres);
+        listeCaracteres = triApparition(listeCaracteres);
         node* arbre = construireArbre(listeCaracteres);
-        assignerTailleVariable(arbre);
+        assignerNouveauCode(arbre);
 
         rewind(fluxFichierEntree); // retour au début du fichier d'entrée car on va maintenant le reparcourir pour traiter chaque caractère
 
@@ -70,13 +70,16 @@ int main(int argc, char* argv[]) {
         }
 
         ecrireTexteCompresseEtTable(fluxFichierEntree, fluxFichierSortie, fluxFichierTable, listeCaracteres);
+        
+        free(nomFichierTable);
+        freeElemCara(listeCaracteres);
+        freeArbre(arbre);
 
         clock_t fin = clock();
         double tailleFichierEntree = ((double)ftell(fluxFichierEntree)) / 1000; //ftell renvoie la position dans le flux de lecture. Nous étions à la fin donc il renverra la taille du fichier
         double tailleFichierSortie = ((double)ftell(fluxFichierSortie)) / 1000;
         printf("Termine (%.4lfs).\n%.2lfko compresses en %.2lfko (%.1lf%%).\n", (double)(fin - debut)/CLOCKS_PER_SEC, tailleFichierEntree, tailleFichierSortie, tailleFichierSortie*100/tailleFichierEntree);
         
-        free(nomFichierTable);
         fclose(fluxFichierEntree);
         fclose(fluxFichierSortie);
         fclose(fluxFichierTable);
@@ -129,6 +132,8 @@ int main(int argc, char* argv[]) {
 
             caractere = fgetc(fluxFichierEntree);
         }
+
+        freeElemCaraTable(listeElemCaraTable);
 
         fclose(fluxFichierTable);
         fclose(fluxFichierEntree);

@@ -2,10 +2,10 @@
 
 typedef struct elementCara { // élément qui contient caractère:itérations
     char cara; //caractère
-    int iter; //nombres d'iterations
-    int tailleVar; //la nouvelle taille
-    int nbBitsTailleVar; // le nombre de bits de la tailleVar, on en aura besoin pour écrire la tailleVar correctement
-    int ecritDansTable; //si le caractère a déjà été associé à sa taille variable dans le fichier table de sortie
+    int apparition; //nombres d'apparitions
+    int nvCode; //le nouveau code binaire du caractère
+    int nbBitsNvCode; // le nombre de bits du nouveau code, on en aura besoin pour écrire nvCode correctement
+    int ecritDansTable; //si le caractère a déjà été associé à son nouveau code dans le fichier table de sortie
     struct elementCara* suiv;
 } elemCara;
 
@@ -25,15 +25,18 @@ typedef struct elementNoeud { // élément qui contient des noeuds de l'arbre à
 elemNode* creerElemNoeud(node*);
 elemCara* creerElemCara(char);
 
-void ajoutIter(elemCara*, char);
-elemCara* triIter(elemCara*);
-elemNode* triIterElemNode(elemNode*);
+void ajoutApparition(elemCara*, char);
+elemCara* triApparition(elemCara*);
+elemNode* triApparitionElemNode(elemNode*);
 
 node* creerNoeud(elemCara*);
 node* creerNoeudSomme(node*, node*);
 
 node* construireArbre(elemCara*);
-void assignerTailleVariableRec(node*, int*, int*);
-void assignerTailleVariable(node*);
+void assignerNouveauCodeRec(node*, int*, int*);
+void assignerNouveauCode(node*);
 
 void ecrireTexteCompresseEtTable(FILE*, FILE*, FILE*, elemCara*);
+
+void freeElemCara(elemCara*);
+void freeArbre(node*);
