@@ -1,6 +1,7 @@
 #include "compression.h"
 #include <stdlib.h>
 
+// Initialise un elemNode à partir d'un noeud et le renvoie
 elemNode* creerElemNoeud(node* n) {
     elemNode* nv = (elemNode*) malloc(sizeof(elemNode));
     if (nv == NULL) {
@@ -14,6 +15,7 @@ elemNode* creerElemNoeud(node* n) {
     return nv;
 }
 
+// Initialise un elemCara à partir d'un caractère et le renvoie
 elemCara* creerElemCara(char c) {
     elemCara* nv = (elemCara*) malloc(sizeof(elemCara));
     if (nv == NULL) {
@@ -22,17 +24,16 @@ elemCara* creerElemCara(char c) {
     }
 
     nv->cara = c;
-    nv->apparition = 1; // la fonction sera appelée lorsque l'élément aura déjà été trouvé une fois
+    nv->apparition = 1; // La fonction sera appelée lorsque l'élément aura déjà été trouvé une fois
     nv->ecritDansTable = 0;
     nv->suiv = NULL;
 
     return nv;
 }
 
-// Cette fonction ajoute une itération à un caractère s'il est déjà dans la liste chaînée,
-// sinon, elle crée un élément pour le nouveau caractère à la fin de la liste.
+// Ajoute une apparition à un caractère s'il est déjà dans la liste chaînée, sinon crée un élément pour le nouveau caractère à la fin de la liste
 void ajoutApparition(elemCara* e, char c) {
-    // on sait que e n'est pas NULL car on a déjà initialisé notre liste au premier élément
+    // On sait que e n'est pas NULL car on a déjà initialisé notre liste au premier élément
 
     while(e->suiv && e->cara != c) e = e->suiv;
 
@@ -40,9 +41,9 @@ void ajoutApparition(elemCara* e, char c) {
     else e->suiv = creerElemCara(c);
 }
 
-// Cette fonction trie une liste par nombre d'itérations et renvoie le premier élément de la liste
+// Trie la liste d'elemCara par nombre d'apparitions et renvoie le premier élément de la liste
 elemCara* triApparition(elemCara* e) {
-    if (e == NULL || e->suiv == NULL) return e; // inutile de trier une liste vide ou à un seul élément
+    if (e == NULL || e->suiv == NULL) return e; // Inutile de trier une liste vide ou à un seul élément
 
     elemCara* actuel = e;
     while(actuel && actuel->suiv) {
@@ -68,8 +69,9 @@ elemCara* triApparition(elemCara* e) {
     return e;
 }
 
+// Trie la liste d'elemNode par valeur de la somme et renvoie le premier élément de la liste
 elemNode* triApparitionElemNode(elemNode* e) {
-    if (e == NULL || e->suiv == NULL) return e; // inutile de trier une liste vide ou à un seul élément
+    if (e == NULL || e->suiv == NULL) return e; // Inutile de trier une liste vide ou à un seul élément
 
     elemNode* actuel = e;
     while(actuel && actuel->suiv) {
@@ -92,7 +94,8 @@ elemNode* triApparitionElemNode(elemNode* e) {
     return e;
 }
 
-node* creerNoeud(elemCara* e) { // dans la pratique, les noeuds qui ne sont pas des sommes sont les feuilles de notre arbre
+// Initialise un noeud associé à un elemCara (donc une feuille de l'arbre) et le renvoie
+node* creerNoeud(elemCara* e) {
     node* nv = (node*) malloc(sizeof(node));
     if (nv == NULL) {
         fprintf(stderr, "Erreur : allocation memoire\n");
@@ -107,6 +110,7 @@ node* creerNoeud(elemCara* e) { // dans la pratique, les noeuds qui ne sont pas 
     return nv;
 }
 
+// Initialise un noeud associé à une somme (donc un noeud interne de l'arbre) et le renvoie
 node* creerNoeudSomme(node* fg, node* fd) {
     node* nv = (node*) malloc(sizeof(node));
     if (nv == NULL) {
@@ -121,15 +125,16 @@ node* creerNoeudSomme(node* fg, node* fd) {
     return nv;
 }
 
+// Construit l'arbre de compression pour appliquer l'algorithme de Huffman ensuite et renvoie la racine
 node* construireArbre(elemCara* e) {
     if (e == NULL) return NULL;
     if (e->suiv == NULL) return creerNoeud(e);
     
     node* noeud = creerNoeudSomme(creerNoeud(e), creerNoeud(e->suiv));
     elemCara* actuel = e->suiv->suiv;
-    elemNode* dernierNoeudSomme = creerElemNoeud(noeud); // tiendra compte des noeuds somme créés qui ne sont pas encore des fils pour les ajouter à l'arbre
+    elemNode* dernierNoeudSomme = creerElemNoeud(noeud); // Tiendra compte des noeuds somme créés qui ne sont pas encore des fils pour les ajouter à l'arbre
     while (actuel || (dernierNoeudSomme && dernierNoeudSomme->suiv)) {
-        if (!actuel) {// si actuel == NULL et qu'on est tout de même dans la boule, c'est qu'il y a deux sommes à additionner : on le traite à part
+        if (!actuel) {// Si actuel == NULL et qu'on est tout de même dans la boule, c'est qu'il y a deux sommes à additionner : on le traite à part
             node* nvNoeud = creerNoeudSomme(dernierNoeudSomme->noeud, dernierNoeudSomme->suiv->noeud);
             elemNode* nvElemNoeud = creerElemNoeud(nvNoeud);
             nvElemNoeud->suiv = dernierNoeudSomme->suiv->suiv;
@@ -138,8 +143,8 @@ node* construireArbre(elemCara* e) {
             elemNode* temp = dernierNoeudSomme;
             dernierNoeudSomme = nvElemNoeud;
             free(temp);
-        } else if (dernierNoeudSomme->noeud->somme < actuel->apparition) {// le prochain noeud à créer a un noeud de somme en fils gauche
-            if (dernierNoeudSomme->suiv && dernierNoeudSomme->suiv->noeud->somme < actuel->apparition) {// le prochain noeud à créer a deux noeuds de somme en fils
+        } else if (dernierNoeudSomme->noeud->somme < actuel->apparition) {// Le prochain noeud à créer a un noeud de somme en fils gauche
+            if (dernierNoeudSomme->suiv && dernierNoeudSomme->suiv->noeud->somme < actuel->apparition) {// Le prochain noeud à créer a deux noeuds de somme en fils
                 node* nvNoeud = creerNoeudSomme(dernierNoeudSomme->noeud, dernierNoeudSomme->suiv->noeud);
                 elemNode* nvElemNoeud = creerElemNoeud(nvNoeud);
                 nvElemNoeud->suiv = dernierNoeudSomme->suiv->suiv;
@@ -148,7 +153,7 @@ node* construireArbre(elemCara* e) {
                 elemNode* temp = dernierNoeudSomme;
                 dernierNoeudSomme = nvElemNoeud;
                 free(temp);
-            } else {// sinon le prochain noeud à créer a exactement une somme comme fils (et c'est le fils gauche)
+            } else {// Sinon le prochain noeud à créer a exactement une somme comme fils (et c'est le fils gauche)
                 node* nvNoeud = creerNoeudSomme(dernierNoeudSomme->noeud, creerNoeud(actuel));
                 elemNode* nvElemNoeud = creerElemNoeud(nvNoeud);
                 nvElemNoeud->suiv = dernierNoeudSomme->suiv;
@@ -159,7 +164,7 @@ node* construireArbre(elemCara* e) {
 
                 actuel = actuel->suiv;
             }
-        } else if (actuel->suiv && dernierNoeudSomme->noeud->somme > actuel->suiv->apparition) {// le prochain noeud à créer est une somme de deux feuilles
+        } else if (actuel->suiv && dernierNoeudSomme->noeud->somme > actuel->suiv->apparition) {// Le prochain noeud à créer est une somme de deux feuilles
             node* nvNoeud = creerNoeudSomme(creerNoeud(actuel), creerNoeud(actuel->suiv));
             elemNode* nvElemNoeud = creerElemNoeud(nvNoeud);
 
@@ -168,7 +173,7 @@ node* construireArbre(elemCara* e) {
             dernierNoeudSommeActuel->suiv = nvElemNoeud;
 
             actuel = actuel->suiv->suiv;
-        } else {// le cas restant
+        } else {// Le cas restant
             node* nvNoeud = creerNoeudSomme(creerNoeud(actuel), dernierNoeudSomme->noeud);
             elemNode* nvElemNoeud = creerElemNoeud(nvNoeud);
             nvElemNoeud->suiv = dernierNoeudSomme->suiv;
@@ -186,28 +191,30 @@ node* construireArbre(elemCara* e) {
     return dernierNoeudSomme->noeud;
 }
 
+// Réalise l'affectation du nouveau code dans les elemCara des noeuds de l'arbre, de manière récursive
 void assignerNouveauCodeRec(node* arbre, int* bits, int* profondeur) {
     if (arbre) {
         (*profondeur)++;
         if (arbre->somme == -1) {
-            arbre->elmt->nvCode = *bits; // on a atteint une feuille, on donne le nouveau code alors obtenue
+            arbre->elmt->nvCode = *bits; // On a atteint une feuille, on donne le nouveau code alors obtenue
             arbre->elmt->nbBitsNvCode = *profondeur;
-        } else { // on a atteint un noeud somme, décalons les bits du nouveau code vers la gauche (et ceci ajoute un 0 à la fin par défaut)
+        } else { // On a atteint un noeud somme, décalons les bits du nouveau code vers la gauche (et ceci ajoute un 0 à la fin par défaut)
             (*bits) <<= 1;
-            if (arbre->fg) assignerNouveauCodeRec(arbre->fg, bits, profondeur); // si c'est un fils gauche, on réitère juste
+            if (arbre->fg) assignerNouveauCodeRec(arbre->fg, bits, profondeur); // Si c'est un fils gauche, on réitère juste
             if (arbre->fd) {
-                (*bits) |= 1; // si c'est un fils droit, il faut d'abord modifier le dernier bit en 1
+                (*bits) |= 1; // Si c'est un fils droit, il faut d'abord modifier le dernier bit en 1
                 assignerNouveauCodeRec(arbre->fd, bits, profondeur);
             }
-            (*bits) >>= 1; // quand on remonte dans l'arbre, on redécale vers la droite d'un bit
+            (*bits) >>= 1; // Quand on remonte dans l'arbre, on redécale vers la droite d'un bit
         }
         (*profondeur)--;
     }
 }
 
+// Initialise l'affectation du nouveau code dans les elemCara des noeuds de l'arbre et appelle assignerNouveauCodeRec pour le faire de manière récursive
 void assignerNouveauCode(node* arbre) {
     if (arbre) {
-        if (arbre->somme == -1) { // fichier qui ne contient qu'un même caractère
+        if (arbre->somme == -1) { // Fichier qui ne contient qu'un même caractère
             arbre->elmt->nvCode = 0;
             arbre->elmt->nbBitsNvCode = 1;
         } else {
@@ -226,6 +233,8 @@ void assignerNouveauCode(node* arbre) {
     }
 }
 
+// Lit le fichier texte d'entrée et écrit chaque caractère avec son nouveau code dans le fichier binaire de sortie
+// Ecrit également dans le fichier table pour décompresser ensuite
 void ecrireTexteCompresseEtTable(FILE* fluxFichierEntree, FILE* fluxFichierSortie, FILE* fluxFichierTable, elemCara* listeCaracteres) {
     int accumulateurBits = 0; // on écrira les bits par paquet de 8 pour remplir les octets
     int compteurAccBits = 0; // on comptera jusqu'à 8 avant de repasser le compteur à 0 et d'écrire une fois
@@ -274,6 +283,7 @@ void ecrireTexteCompresseEtTable(FILE* fluxFichierEntree, FILE* fluxFichierSorti
     }
 }
 
+// Libère l'espace mémoire alloué à la liste d'elemCara
 void freeElemCara(elemCara* liste) {
     while (liste) {
         elemCara* temp = liste;
@@ -282,6 +292,7 @@ void freeElemCara(elemCara* liste) {
     }
 }
 
+// Libère l'espace mémoire alloué à l'arbre
 void freeArbre(node* arbre) {
     if (arbre->fg) freeArbre(arbre->fg);
     if (arbre->fd) freeArbre(arbre->fd);

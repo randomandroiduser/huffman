@@ -3,7 +3,7 @@
 typedef struct elementCaraTable {
     char cara;
     int nvCode;
-    int nbBitsNvCode; // le nombre de bits du nouveau code (pour par exemple différencier 0000 et 0)
+    int nbBitsNvCode; // Le nombre de bits du nouveau code (pour par exemple différencier 0000 et 0)
     struct elementCaraTable* suiv;
 } elemCaraTable;
 

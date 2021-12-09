@@ -1,6 +1,7 @@
 #include "decompression.h"
 #include <stdlib.h>
 
+// Initialise un elemCaraTable à partir des caractère c, entier nvCode et entier nbBitsNvCode récupérés à l'aide du fichier table et le renvoie
 elemCaraTable* creerElemCaraTable(char c, int nvCode, int nbBitsNvCode) {
     elemCaraTable* nv = (elemCaraTable*) malloc(sizeof(elemCaraTable));
     if (nv == NULL) {
@@ -25,6 +26,7 @@ int nbCaracteres(FILE* fluxFichier) {
     return nbCara;
 }
 
+// Transforme la table de codage en une liste chaînée d'elemCaraTable pour effectuer la décompression ensuite
 elemCaraTable* traiterTableCodage(FILE* fluxFichierTable, int* nbBitsVides) {
     (*nbBitsVides) = 0;
     int nbCara = nbCaracteres(fluxFichierTable);
@@ -43,16 +45,16 @@ elemCaraTable* traiterTableCodage(FILE* fluxFichierTable, int* nbBitsVides) {
             nbBitsNvCode++;
         }
     }
-    nvCode >>= 1; // on enlève le <<= 1 de trop
+    nvCode >>= 1; // On enlève le <<= 1 de trop
 
     elemCaraTable* liste = creerElemCaraTable(caractere, nvCode, nbBitsNvCode);
     elemCaraTable* actuel = liste;
     nbCaraActuel++;
-    caraActuel = fgetc(fluxFichierTable); // on s'est arrêté à la virgule donc on passe au caractère suivant
+    caraActuel = fgetc(fluxFichierTable); // On s'est arrêté à la virgule donc on passe au caractère suivant
 
-    int ignorerVerification = 0; // on utilise une variable qui ignore la vérification du premier caractère suivant une virgule, de cette manière si ce dit caractère est une virgule il sera tout de même pris en compte
+    int ignorerVerification = 0; // On utilise une variable qui ignore la vérification du premier caractère suivant une virgule, de cette manière si ce dit caractère est une virgule il sera tout de même pris en compte
     while (caraActuel != EOF) {
-        if (nbCaraActuel == nbCara) { // le cas où la fin du fichier table contient un entier correspondant au nombre de bits vides à la fin de la décompression
+        if (nbCaraActuel == nbCara) { // Le cas où la fin du fichier table contient un entier correspondant au nombre de bits vides à la fin de la décompression
             (*nbBitsVides) = caraActuel - 48;
             break;
         }
@@ -84,9 +86,9 @@ elemCaraTable* traiterTableCodage(FILE* fluxFichierTable, int* nbBitsVides) {
     return liste;
 }
 
-// tri croissant par nbBitsNvCode pour placer les éléments qui sont écrits sur peu de bits (les + utilisés) en premier, et les éléments qui sont écrits sur beaucoup de bits (les - utilisés) en dernier
+// Tri croissant par nbBitsNvCode pour placer les éléments qui sont écrits sur peu de bits (les + utilisés) en premier, et les éléments qui sont écrits sur beaucoup de bits (les - utilisés) en dernier
 elemCaraTable* triElemCaraTab(elemCaraTable* e) {
-    if (e == NULL || e->suiv == NULL) return e; // inutile de trier une liste vide ou à un seul élément
+    if (e == NULL || e->suiv == NULL) return e; // Inutile de trier une liste vide ou à un seul élément
 
     elemCaraTable* actuel = e;
     while (actuel && actuel->suiv) {
@@ -116,6 +118,8 @@ elemCaraTable* triElemCaraTab(elemCaraTable* e) {
     return e;
 }
 
+// Vérifie si les valeurs de l'accumulateur et du compteur de bits sont respectivement égaux au nouveau code d'un caractère, et de sa taille en bits
+// Si c'est le cas, écrit ledit caractère dans le fichier texte de sortie
 void testAccumulateurEtEcriture(int* accBits, int* comptAccBits, elemCaraTable* liste, FILE* fluxFichierSortie) {
     while (liste) {
         if (*comptAccBits == liste->nbBitsNvCode && *accBits == liste->nvCode) {
@@ -129,6 +133,7 @@ void testAccumulateurEtEcriture(int* accBits, int* comptAccBits, elemCaraTable* 
     }
 }
 
+// Libère l'espace mémoire alloué à la liste d'elemCaraTable
 void freeElemCaraTable(elemCaraTable* liste) {
     while (liste) {
         elemCaraTable* temp = liste;
