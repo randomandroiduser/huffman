@@ -46,9 +46,9 @@ La compression et la décompression sont maintenant prêtes à être utilisées 
 ### Pour compresser un fichier texte
 
 1. Munissez-vous du fichier texte que vous souhaitez compresser (dans notre exemple `fichierTxt`)
-2.  Compressez `fichierTexte` et récupérez la sortie dans un fichier binaire (dans notre exemple `fichierBin.bin`)
+2.  Compressez `fichierTxt` et récupérez la sortie dans un fichier binaire (dans notre exemple `fichierBin.bin`)
    ```sh
-   ./huffman -c fichierTexte fichierBin.bin
+   ./huffman -c fichierTxt fichierBin.bin
    ```
 
 ### Pour décompresser un fichier binaire
