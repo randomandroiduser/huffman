@@ -18,6 +18,3 @@ main.o: main.c compression.h decompression.h
 
 clean:
 	rm -rf *.o
-
-cleanOutput:
-	rm -rf *.bin *Table.txt
