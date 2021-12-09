@@ -53,8 +53,8 @@ La compression et la décompression sont maintenant prêtes à être utilisées 
 
 ### Pour décompresser un fichier binaire
 
-1. Munissez-vous du fichier binaire et du fichier table précédemment obtenus (dans notre exemple `fichierBin` et `fichierTxtTable.txt`)
-2.  Décompressez `fichierBin` et récupérez la sortie dans un fichier texte (dans notre exemple `fichierTxt2`)
+1. Munissez-vous du fichier binaire et du fichier table précédemment obtenus (dans notre exemple `fichierBin.bin` et `fichierTxtTable.txt`)
+2.  Décompressez `fichierBin.bin` et récupérez la sortie dans un fichier texte (dans notre exemple `fichierTxt2`)
    ```sh
    ./huffman -d fichierBin.bin fichierTxt2 fichierTxtTable.txt
    ```
