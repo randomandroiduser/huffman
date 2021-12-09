@@ -16,14 +16,26 @@ elemCaraTable* creerElemCaraTable(char c, int nvCode, int nbBitsNvCode) {
     return nv;
 }
 
+// Renvoie le nombre de caractères du fichier d'un flux de lecture et réinitilise son pointeur au premier caractère
+int nbCaracteres(FILE* fluxFichier) {
+    int nbCara;
+    for (nbCara = 0; fgetc(fluxFichier) != EOF; ++nbCara); // Calcul du nombre de caractères
+    rewind(fluxFichier);
+
+    return nbCara;
+}
+
 elemCaraTable* traiterTableCodage(FILE* fluxFichierTable, int* nbBitsVides) {
     (*nbBitsVides) = 0;
+    int nbCara = nbCaracteres(fluxFichierTable);
+    int nbCaraActuel = 1;
     char caraActuel = fgetc(fluxFichierTable);
     char caractere = caraActuel;
     int nvCode = 0;
     int nbBitsNvCode = 0;
 
     while (caraActuel != ',') {
+        nbCaraActuel++;
         caraActuel = fgetc(fluxFichierTable);
         if (caraActuel != ',') {
             nvCode |= caraActuel - 48;
@@ -35,22 +47,22 @@ elemCaraTable* traiterTableCodage(FILE* fluxFichierTable, int* nbBitsVides) {
 
     elemCaraTable* liste = creerElemCaraTable(caractere, nvCode, nbBitsNvCode);
     elemCaraTable* actuel = liste;
+    nbCaraActuel++;
     caraActuel = fgetc(fluxFichierTable); // on s'est arrêté à la virgule donc on passe au caractère suivant
 
     int ignorerVerification = 0; // on utilise une variable qui ignore la vérification du premier caractère suivant une virgule, de cette manière si ce dit caractère est une virgule il sera tout de même pris en compte
     while (caraActuel != EOF) {
-        char caraSuiv = fgetc(fluxFichierTable);
-        if (caraSuiv == EOF) { // le cas où la fin du fichier table contient un entier correspondant au nombre de bits vides à la fin de la décompression
+        if (nbCaraActuel == nbCara) { // le cas où la fin du fichier table contient un entier correspondant au nombre de bits vides à la fin de la décompression
             (*nbBitsVides) = caraActuel - 48;
             break;
         }
-        fseek(fluxFichierTable, -1L, SEEK_CUR); // on revient au caractère précédent si le fgetc n'a pas donné un EOF
         
         caractere = caraActuel;
         nvCode = 0;
         nbBitsNvCode = 0;
         while (caraActuel != ',' || ignorerVerification) {
             if (ignorerVerification) ignorerVerification = 0;
+            nbCaraActuel++;
             caraActuel = fgetc(fluxFichierTable);
             if (caraActuel != ',') {
                 nvCode |= caraActuel - 48;
@@ -65,6 +77,7 @@ elemCaraTable* traiterTableCodage(FILE* fluxFichierTable, int* nbBitsVides) {
         actuel->suiv = nv;
         actuel = actuel->suiv;
 
+        nbCaraActuel++;
         caraActuel = fgetc(fluxFichierTable);
     }
 

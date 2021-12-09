@@ -8,6 +8,7 @@ typedef struct elementCaraTable {
 } elemCaraTable;
 
 elemCaraTable* creerElemCaraTable(char, int, int);
+int nbCaracteres(FILE*);
 elemCaraTable* traiterTableCodage(FILE*, int*);
 elemCaraTable* triElemCaraTab(elemCaraTable*);
 
