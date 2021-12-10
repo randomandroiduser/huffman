@@ -10,7 +10,7 @@
 
 ![Capture d'écran](https://i.imgur.com/Y9PprA0.jpg)
 
-Le projet Huffman consiste à compresser des fichiers texte de la table ASCII étendue en fichiers binaire, puis à les décompresser dans le sens inverse. Ceci est réalisé à l'aide de l'algorithme de Huffman implémenté dans le langage C.
+Le projet Huffman consiste à compresser des fichiers texte contenant n'importe quels caractères [Unicode](https://fr.wikipedia.org/wiki/Unicode) en fichiers binaire, puis à les décompresser pour restituer le fichier original. Ceci est réalisé à l'aide de l'algorithme de Huffman implémenté dans le langage C.
 
 ## Pour commencer
 
